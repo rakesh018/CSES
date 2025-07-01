@@ -1,52 +1,62 @@
 #include <bits/stdc++.h>
 using namespace std;
-void dfs(int node, vector<bool> &visited, vector<vector<int>> &graph)
-{
-    // mark visited
-    visited[node] = true;
 
-    for (int &neighbor : graph[node])
+void backtrack(vector<int> &parents, int n)
+{
+    // backtrack from n to 1
+    vector<int> arr;
+    int curr = n;
+    while (curr != 0)
     {
-        if (!visited[neighbor])
+        arr.push_back(curr);
+        curr = parents[curr];
+    }
+    cout<<arr.size()<<endl;
+    for (int i = arr.size() - 1; i >= 0; i--)
+    {
+        cout << arr[i] << " ";
+    }
+    cout << endl;
+}
+void solve()
+{
+    int n, m;
+    cin>>n>>m;
+    vector<vector<int>> graph(n + 1);
+    for (int i = 0; i < m; i++)
+    {
+        int src, dst;
+        cin >> src >> dst;
+        graph[src].push_back(dst);
+        graph[dst].push_back(src);
+    }
+
+    vector<int> parents(n + 1, -1); //-2 is not visited, -1 is the root
+    parents[1] = 0;
+    queue<int> q;
+    q.push(1);
+
+    while (!q.empty())
+    {
+        int node = q.front();
+        q.pop();
+
+        for (int &neighbor : graph[node])
         {
-            dfs(neighbor, visited, graph);
+            if (parents[neighbor] == -1)
+            {
+                parents[neighbor] = node;
+                q.push(neighbor);
+            }
         }
     }
+    if (parents[n] == -1)
+        cout << "IMPOSSIBLE" << endl;
+    else
+        backtrack(parents, n);
 }
 int main()
 {
-    int n, m;
-    cin >> n >> m;
-
-    vector<vector<int>> graph(n + 1);
-    int a, b;
-    for (int i = 0; i < m; i++)
-    {
-        cin >> a >> b;
-        graph[a].push_back(b);
-        graph[b].push_back(a);
-    }
-
-    // just count the number of connected components
-    // ans is components-1
-
-    vector<bool> visited(n + 1, false);
-    int components = 0;
-    vector<int> nodes;
-    for (int i = 1; i <= n; i++)
-    {
-        if (!visited[i])
-        {
-            components++;
-            dfs(i, visited, graph);
-            nodes.push_back(i);
-        }
-    }
-    cout << components - 1 << endl;
-    for (int i = 0; i < nodes.size() - 1; i++)
-    {
-        cout << nodes[i] << " " << nodes[i + 1] << endl;
-    }
-
+    solve();
     return 0;
 }
